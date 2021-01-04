@@ -27,7 +27,7 @@ class Foxtrot extends Stock
             $browser->visit($url);
 
             try {
-                $browser->waitFor('.product-box__main-buy__button', 10);
+                $browser->waitFor('.product-box__main', 10);
             } catch (\Exception $e) {
                 $this->result = false;
 

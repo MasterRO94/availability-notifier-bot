@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace App\Services\Stocks;
 
 use Closure;
+use Illuminate\Support\Str;
 use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
 
-class Comfy extends Stock
+class Epicentr extends Stock
 {
     public function getName(): string
     {
-        return 'Comfy';
+        return 'Foxtrot';
     }
 
     public function getUrl(): string
     {
-        return 'https://comfy.ua';
+        return 'https://epicentrk.ua';
     }
 
     protected function browseCallback(string $url): Closure
@@ -26,7 +27,7 @@ class Comfy extends Stock
             $browser->visit($url);
 
             try {
-                $browser->waitFor('.product-card-header', 10);
+                $browser->waitFor('.p-block--info', 10);
             } catch (\Exception $e) {
                 $this->result = false;
 
@@ -36,7 +37,7 @@ class Comfy extends Stock
             /** @var Crawler $crawler */
             $crawler = $browser->crawler();
 
-            if ($crawler->filter('.buy')->count() > 0) {
+            if ($crawler->filter('.p-buy__btn')->count() > 0) {
                 $this->result = true;
             }
         };

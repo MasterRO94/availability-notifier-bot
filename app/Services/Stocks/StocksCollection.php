@@ -16,6 +16,7 @@ class StocksCollection extends Collection
             Citrus::make(),
             Comfy::make(),
             Foxtrot::make(),
+            Epicentr::make(),
         ]);
     }
 
