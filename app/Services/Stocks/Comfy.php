@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Stocks;
 
-use Closure;
-use Exception;
-use Laravel\Dusk\Browser;
-use Symfony\Component\DomCrawler\Crawler;
-
-class Comfy extends Stock
+class Comfy extends SimpleStock
 {
     public function getName(): string
     {
@@ -21,23 +16,13 @@ class Comfy extends Stock
         return 'https://comfy.ua';
     }
 
-    protected function browseCallback(string $url): Closure
+    protected function waitFor(): string
     {
-        return function (Browser $browser) use ($url) {
-            $browser->visit($url);
+        return '.product-card-header';
+    }
 
-            try {
-                $browser->waitFor('.product-card-header', 10);
-            } catch (Exception $e) {
-                return;
-            }
-
-            /** @var Crawler $crawler */
-            $crawler = $browser->crawler();
-
-            if ($crawler->filter('.buy')->count() > 0) {
-                $this->result = true;
-            }
-        };
+    protected function availabilitySelector(): string
+    {
+        return '.buy';
     }
 }

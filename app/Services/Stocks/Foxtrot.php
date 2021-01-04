@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services\Stocks;
 
-use Closure;
-use Exception;
 use Illuminate\Support\Str;
-use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
 
-class Foxtrot extends Stock
+class Foxtrot extends SimpleStock
 {
     public function getName(): string
     {
@@ -22,27 +19,24 @@ class Foxtrot extends Stock
         return 'https://www.foxtrot.com.ua';
     }
 
-    protected function browseCallback(string $url): Closure
+    protected function checkAvailability(Crawler $crawler): void
     {
-        return function (Browser $browser) use ($url) {
-            $browser->visit($url);
+        $buyButton = $crawler->filter($this->availabilitySelector());
 
-            try {
-                $browser->waitFor('.product-box__main', 10);
-            } catch (Exception $e) {
-                return;
-            }
+        if ($buyButton->count() > 0
+            && !Str::of($buyButton->first()->attr('class'))->contains('product-not-avail-button')
+        ) {
+            $this->result = true;
+        }
+    }
 
-            /** @var Crawler $crawler */
-            $crawler = $browser->crawler();
+    protected function waitFor(): string
+    {
+        return '.product-box__main';
+    }
 
-            $buyButton = $crawler->filter('.product-box__main-buy__button');
-
-            if ($buyButton->count() > 0
-                && !Str::of($buyButton->first()->attr('class'))->contains('product-not-avail-button')
-            ) {
-                $this->result = true;
-            }
-        };
+    protected function availabilitySelector(): string
+    {
+        return '.product-box__main-buy__button';
     }
 }

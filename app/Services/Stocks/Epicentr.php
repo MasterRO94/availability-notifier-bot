@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Stocks;
 
-use Closure;
-use Exception;
-use Laravel\Dusk\Browser;
-use Symfony\Component\DomCrawler\Crawler;
-
-class Epicentr extends Stock
+class Epicentr extends SimpleStock
 {
     public function getName(): string
     {
@@ -21,23 +16,13 @@ class Epicentr extends Stock
         return 'https://epicentrk.ua';
     }
 
-    protected function browseCallback(string $url): Closure
+    protected function waitFor(): string
     {
-        return function (Browser $browser) use ($url) {
-            $browser->visit($url);
+        return '.p-block--info';
+    }
 
-            try {
-                $browser->waitFor('.p-block--info', 10);
-            } catch (Exception $e) {
-                return;
-            }
-
-            /** @var Crawler $crawler */
-            $crawler = $browser->crawler();
-
-            if ($crawler->filter('.p-buy__btn')->count() > 0) {
-                $this->result = true;
-            }
-        };
+    protected function availabilitySelector(): string
+    {
+        return '.p-buy__btn';
     }
 }

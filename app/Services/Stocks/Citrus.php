@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Stocks;
 
-use Closure;
-use Exception;
-use Laravel\Dusk\Browser;
-use Symfony\Component\DomCrawler\Crawler;
-
-class Citrus extends Stock
+class Citrus extends SimpleStock
 {
     public function getName(): string
     {
@@ -21,23 +16,13 @@ class Citrus extends Stock
         return 'https://www.citrus.ua';
     }
 
-    protected function browseCallback(string $url): Closure
+    protected function waitFor(): string
     {
-        return function (Browser $browser) use ($url) {
-            $browser->visit($url);
+        return '.buy-block';
+    }
 
-            try {
-                $browser->waitFor('.buy-block', 10);
-            } catch (Exception $e) {
-                return;
-            }
-
-            /** @var Crawler $crawler */
-            $crawler = $browser->crawler();
-
-            if ($crawler->filter('.buy-block__base')->count() > 0) {
-                $this->result = true;
-            }
-        };
+    protected function availabilitySelector(): string
+    {
+        return '.buy-block__base';
     }
 }
