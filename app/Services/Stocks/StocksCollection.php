@@ -14,6 +14,7 @@ class StocksCollection extends Collection
         return static::make([
             Rozetka::make(),
             Citrus::make(),
+            Comfy::make(),
         ]);
     }
 
