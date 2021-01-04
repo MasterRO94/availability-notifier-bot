@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Stocks;
 
 use Closure;
+use Exception;
 use Illuminate\Support\Str;
 use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -28,9 +29,7 @@ class Foxtrot extends Stock
 
             try {
                 $browser->waitFor('.product-box__main', 10);
-            } catch (\Exception $e) {
-                $this->result = false;
-
+            } catch (Exception $e) {
                 return;
             }
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Stocks;
 
 use Closure;
-use Illuminate\Support\Str;
+use Exception;
 use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -28,9 +28,7 @@ class Epicentr extends Stock
 
             try {
                 $browser->waitFor('.p-block--info', 10);
-            } catch (\Exception $e) {
-                $this->result = false;
-
+            } catch (Exception $e) {
                 return;
             }
 

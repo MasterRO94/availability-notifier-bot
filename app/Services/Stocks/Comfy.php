@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Stocks;
 
 use Closure;
+use Exception;
 use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -27,9 +28,7 @@ class Comfy extends Stock
 
             try {
                 $browser->waitFor('.product-card-header', 10);
-            } catch (\Exception $e) {
-                $this->result = false;
-
+            } catch (Exception $e) {
                 return;
             }
 
