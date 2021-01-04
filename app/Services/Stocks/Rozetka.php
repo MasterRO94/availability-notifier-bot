@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Services\Stocks;
 
 use Closure;
-use Illuminate\Support\Str;
-use InvalidArgumentException;
 use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
 
