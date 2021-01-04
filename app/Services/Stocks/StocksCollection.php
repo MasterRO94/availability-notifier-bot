@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Stocks;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class StocksCollection extends Collection
 {
@@ -13,8 +14,13 @@ class StocksCollection extends Collection
         return static::make([
             Rozetka::make(),
             Citrus::make(),
-            RozetkaTest::make(),
-            CitrusTest::make(),
         ]);
+    }
+
+    public function findByUrl(string $url): ?StockContract
+    {
+        return $this->first(
+            fn(StockContract $stock) => Str::of($url)->startsWith($stock->getUrl())
+        );
     }
 }

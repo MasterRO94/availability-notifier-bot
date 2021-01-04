@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-         $schedule->command('bot:check-availability')->everyFiveMinutes();
+         $schedule->command('bot:check-availability')->everyFiveMinutes()->withoutOverlapping();
     }
 
     /**

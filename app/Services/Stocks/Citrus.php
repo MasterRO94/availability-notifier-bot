@@ -17,13 +17,13 @@ class Citrus extends Stock
 
     public function getUrl(): string
     {
-        return 'https://www.citrus.ua/igrovye-pristavki/igrovaya-konsol-sony-playstation-5-663700.html';
+        return 'https://www.citrus.ua';
     }
 
-    protected function browseCallback(): Closure
+    protected function browseCallback(string $url): Closure
     {
-        return function (Browser $browser) {
-            $browser->visit($this->getUrl());
+        return function (Browser $browser) use ($url) {
+            $browser->visit($url);
 
             $browser->waitFor('.buy-block', 5);
 

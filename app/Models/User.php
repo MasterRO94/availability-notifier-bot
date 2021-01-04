@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Foundation\WithUuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -20,18 +21,19 @@ use Illuminate\Notifications\Notifiable;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
  * @property-read int|null $notifications_count
- * @method static \Illuminate\Database\Eloquent\Builder|User newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|User query()
- * @method static \Illuminate\Database\Eloquent\Builder|User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereFirstName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereLastName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereTelegramUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUsername($value)
- * @method static \Illuminate\Database\Eloquent\Builder|User whereUuid($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ProductLink[] $productLinks
+ * @property-read int|null $product_links_count
+ * @method static Builder|User newModelQuery()
+ * @method static Builder|User newQuery()
+ * @method static Builder|User query()
+ * @method static Builder|User whereCreatedAt($value)
+ * @method static Builder|User whereFirstName($value)
+ * @method static Builder|User whereLastName($value)
+ * @method static Builder|User whereTelegramUserId($value)
+ * @method static Builder|User whereUpdatedAt($value)
+ * @method static Builder|User whereUsername($value)
+ * @method static Builder|User whereUuid($value)
  * @mixin \Eloquent
- * @mixin Builder
  */
 class User extends Authenticatable
 {
@@ -48,5 +50,10 @@ class User extends Authenticatable
     public static function findByTelegramId($id): ?User
     {
         return static::where('telegram_user_id', $id)->first();
+    }
+
+    public function productLinks(): HasMany
+    {
+        return $this->hasMany(ProductLink::class);
     }
 }

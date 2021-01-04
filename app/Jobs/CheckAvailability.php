@@ -3,62 +3,70 @@
 namespace App\Jobs;
 
 use App\Foundation\Helper;
+use App\Models\ProductLink;
 use App\Models\User;
-use App\Services\Stocks\Stock;
-use App\Services\Stocks\StocksCollection;
-use BotMan\BotMan\BotMan;
+use App\Services\Stocks\StockChecker;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Carbon;
 
 class CheckAvailability implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected ?BotMan $botman;
+    protected array $linkUsers = [];
 
-    public function handle(BotMan $botMan)
+    protected array $usersToNotify = [];
+
+    public function handle()
     {
-        $this->botman = $botMan;
-
-        $this->check();
+        $this->prepareLinkUsers();
+        $this->checkStocks();
+        $this->notifyUsers();
     }
 
-    protected function check()
+    protected function prepareLinkUsers()
     {
-        $stocks = $this->getAvailableStocks();
+        /** @var User[] $users */
+        User::chunk(100, function (Collection $users) {
+            foreach ($users as $user) {
+                /** @var ProductLink $productLink */
+                foreach ($user->productLinks()->notNotified()->get() as $productLink) {
+                    if (!isset($this->linkUsers[$productLink->url])) {
+                        $this->linkUsers[$productLink->url] = [];
+                    }
 
-        if ($stocks->isEmpty()) {
-            return;
-        }
-
-        $this->notifyUsers($stocks);
-    }
-
-    protected function getAvailableStocks(): StocksCollection
-    {
-        return StocksCollection::create()->filter(fn(Stock $stock) => $stock->check());
-    }
-
-    protected function notifyUsers(StocksCollection $stocks)
-    {
-
-        $stocks->each(function (Stock $stock) {
-            foreach (User::pluck('telegram_user_id') as $telegramUserId) {
-                $cacheKey = md5($stock->getName() . $telegramUserId);
-
-                if (!cache()->has($cacheKey)) {
-                    Helper::say(
-                        "Найдена плойка на {$stock->getName()}: {$stock->getUrl()}",
-                        $telegramUserId
-                    );
-
-                    cache()->put($cacheKey, "{$stock->getName()} - {$telegramUserId}", Carbon::now()->addHours(3));
+                    if (!in_array($user->telegram_user_id, $this->linkUsers[$productLink->url])) {
+                        $this->linkUsers[$productLink->url][] = $user->telegram_user_id;
+                    }
                 }
             }
         });
+    }
+
+    protected function checkStocks()
+    {
+        foreach ($this->linkUsers as $url => $telegramUserIds) {
+            if (StockChecker::create($url)->check()) {
+                $this->usersToNotify[$url] = $telegramUserIds;
+            }
+        }
+    }
+
+    protected function notifyUsers()
+    {
+        foreach ($this->usersToNotify as $url => $telegramUserIds) {
+            Helper::say(
+                __("Продукт доступен к заказу :url", ['url' => $url]),
+                $telegramUserIds
+            );
+        }
+
+        ProductLink::whereIn('url', array_keys($this->usersToNotify))->update([
+            'notified_at' => now(),
+        ]);
     }
 }

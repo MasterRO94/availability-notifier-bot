@@ -6,8 +6,10 @@ namespace App\Services\Stocks;
 
 use Closure;
 use DuskCrawler\Dusk;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 
-abstract class Stock
+abstract class Stock implements StockContract
 {
     protected Dusk $dusk;
 
@@ -23,8 +25,12 @@ abstract class Stock
         return app(static::class);
     }
 
-    public function check()
+    public function check(string $url): bool
     {
+        if (!Str::of($url)->startsWith($this->getUrl())) {
+            throw new InvalidArgumentException("Specified URL ({$url}) is not valid for stock {$this->getName()}");
+        }
+
         $dusk = new Dusk('search-packagist');
 
         $dusk->headless()->disableGpu()->noSandbox();
@@ -32,12 +38,12 @@ abstract class Stock
 
         $dusk->start();
 
-        $dusk->browse($this->browseCallback());
+        $dusk->browse($this->browseCallback($url));
 
         $dusk->stop();
 
         return $this->result;
     }
 
-    abstract protected function browseCallback(): Closure;
+    abstract protected function browseCallback(string $url): Closure;
 }

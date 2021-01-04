@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Commands\RegisterLink;
+use App\Commands\RegisterUser;
+use App\Commands\WishList;
 use BotMan\BotMan\BotMan;
 use Throwable;
 
@@ -15,6 +17,12 @@ use Throwable;
  */
 class BotController extends Controller
 {
+    protected $commands = [
+        '/start'     => RegisterUser::class,
+        'http.*'     => RegisterLink::class,
+        '/wish_list' => WishList::class,
+    ];
+
     public function __invoke(string $webhookSecret, BotMan $botman)
     {
         if (config('webhooks.telegram.secret') !== $webhookSecret) {
@@ -22,25 +30,11 @@ class BotController extends Controller
         }
 
         try {
-            $botman->hears('/start', function (BotMan $bot) {
-                $user = User::updateOrCreate([
-                    'telegram_user_id' => $bot->getUser()->getId(),
-                ], [
-                    'username'   => $bot->getUser()->getUsername(),
-                    'first_name' => $bot->getUser()->getFirstName(),
-                    'last_name'  => $bot->getUser()->getLastName(),
-                ]);
-
-                if ($user->exists) {
-                    $bot->reply('Уже зарегистрирован');
-                } else {
-                    $bot->reply('Зарегистрирован. Жди уведомления :)');
-                }
-            });
+            $this->registerCommands($botman);
 
             $botman->fallback(function (BotMan $bot) {
                 $bot->typesAndWaits(1);
-                $bot->reply('Команда не распознана');
+                $bot->reply(__('Команда не распознана.'));
             });
 
             $botman->listen();
@@ -49,5 +43,12 @@ class BotController extends Controller
         }
 
         return response()->json(['ok' => 'OK']);
+    }
+
+    protected function registerCommands(BotMan $botman)
+    {
+        foreach ($this->commands as $command => $handler) {
+            $botman->hears($command, $handler . '@handle');
+        }
     }
 }

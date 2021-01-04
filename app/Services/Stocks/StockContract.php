@@ -10,5 +10,5 @@ interface StockContract
 
     public function getUrl(): string;
 
-    public function check(): bool;
+    public function check(string $url): bool;
 }
