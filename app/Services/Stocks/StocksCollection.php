@@ -15,6 +15,7 @@ class StocksCollection extends Collection
             Rozetka::make(),
             Citrus::make(),
             Comfy::make(),
+            Foxtrot::make(),
         ]);
     }
 
