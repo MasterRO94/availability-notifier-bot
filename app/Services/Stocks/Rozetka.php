@@ -25,7 +25,13 @@ class Rozetka extends Stock
         return function (Browser $browser) use ($url) {
             $browser->visit($url);
 
-            $browser->waitFor('.product__status', 5);
+            try {
+                $browser->waitFor('.product__status', 10);
+            } catch (\Exception $e) {
+                $this->result = false;
+
+                return;
+            }
 
             /** @var Crawler $crawler */
             $crawler = $browser->crawler();

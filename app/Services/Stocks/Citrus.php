@@ -25,7 +25,13 @@ class Citrus extends Stock
         return function (Browser $browser) use ($url) {
             $browser->visit($url);
 
-            $browser->waitFor('.buy-block', 5);
+            try {
+                $browser->waitFor('.buy-block', 10);
+            } catch (\Exception $e) {
+                $this->result = false;
+
+                return;
+            }
 
             /** @var Crawler $crawler */
             $crawler = $browser->crawler();
