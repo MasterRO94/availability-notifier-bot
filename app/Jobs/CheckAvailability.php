@@ -17,12 +17,16 @@ class CheckAvailability implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected StockChecker $stockChecker;
+
     protected array $linkUsers = [];
 
     protected array $usersToNotify = [];
 
-    public function handle()
+    public function handle(StockChecker $stockChecker)
     {
+        $this->stockChecker = $stockChecker;
+
         $this->prepareLinkUsers();
         $this->checkStocks();
         $this->notifyUsers();
@@ -50,7 +54,7 @@ class CheckAvailability implements ShouldQueue
     protected function checkStocks()
     {
         foreach ($this->linkUsers as $url => $telegramUserIds) {
-            if (StockChecker::create($url)->check()) {
+            if ($this->stockChecker->check($url)) {
                 $this->usersToNotify[$url] = $telegramUserIds;
             }
         }

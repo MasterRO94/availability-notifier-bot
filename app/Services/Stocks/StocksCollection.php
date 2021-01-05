@@ -20,7 +20,7 @@ class StocksCollection extends Collection
         ]);
     }
 
-    public function findByUrl(string $url): ?StockContract
+    public function findByUrl(string $url): ?Stock
     {
         return $this->first(
             fn(StockContract $stock) => Str::of($url)->startsWith($stock->getUrl())
