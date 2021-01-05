@@ -23,6 +23,8 @@ abstract class SimpleStock extends Stock
             try {
                 $browser->waitFor($this->waitFor(), 10);
             } catch (Exception $e) {
+                report($e);
+
                 return;
             }
 
