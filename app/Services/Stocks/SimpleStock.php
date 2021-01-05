@@ -6,6 +6,7 @@ namespace App\Services\Stocks;
 
 use Closure;
 use Exception;
+use Facebook\WebDriver\Exception\TimeoutException;
 use Laravel\Dusk\Browser;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -22,9 +23,7 @@ abstract class SimpleStock extends Stock
 
             try {
                 $browser->waitFor($this->waitFor(), 10);
-            } catch (Exception $e) {
-                report($e);
-
+            } catch (TimeoutException $e) {
                 return;
             }
 
