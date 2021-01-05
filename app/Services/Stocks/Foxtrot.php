@@ -22,9 +22,11 @@ class Foxtrot extends SimpleStock
     protected function checkAvailability(Crawler $crawler): void
     {
         $buyButton = $crawler->filter($this->availabilitySelector());
+        $buyButtonClass = Str::of($buyButton->first()->attr('class'));
 
         if ($buyButton->count() > 0
-            && !Str::of($buyButton->first()->attr('class'))->contains('product-not-avail-button')
+            && !$buyButtonClass->contains('product-not-avail-button')
+            && !$buyButtonClass->contains('product-preorder-button')
         ) {
             $this->result = true;
         }
