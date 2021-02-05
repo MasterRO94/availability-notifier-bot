@@ -21,6 +21,7 @@ class BotController extends Controller
         '/start'     => RegisterUser::class,
         'http.*'     => RegisterLink::class,
         '/wish_list' => WishList::class,
+        '/check'     => WishList::class,
     ];
 
     public function __invoke(string $webhookSecret, BotMan $botman)
